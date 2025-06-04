@@ -1,0 +1,42 @@
+erDiagram
+    CLIENTES {
+        int DNI PK
+        varchar Nombre
+        varchar Apellido
+        varchar Direccion
+        int Telefono
+    }
+    VEHICULOS {
+        varchar Patente PK
+        varchar Modelo
+        varchar color
+    }
+    MECANICOS {
+        int Legajo PK
+        varchar Nombre
+        varchar Apellido
+        varchar Rol
+        bool Estado
+    }
+    REPUESTOS {
+        int Id PK
+        varchar Nombre
+        int Precio
+        varchar Fabricante
+    }
+    REPARACIONES {
+        int id_reparacion PK
+        date Fecha_entrada
+        time Hora_entrada
+        varchar Patente
+        varchar Legajo
+    }
+    MECANICO_REPARACIONES {
+        varchar Legajo
+        int id_reparacion
+    }
+
+    CLIENTES ||--o{ VEHICULOS : "posee"
+    VEHICULOS ||--o{ REPARACIONES : "tiene"
+    MECANICOS ||--o{ MECANICO_REPARACIONES : "realiza"
+    REPARACIONES ||--o{ MECANICO_REPARACIONES : "incluye"
