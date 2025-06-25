@@ -9,7 +9,7 @@ erDiagram
     VEHICULOS {
         varchar Patente PK
         varchar Modelo
-        varchar color
+        varchar Color
     }
     MECANICOS {
         int Legajo PK
@@ -31,6 +31,22 @@ erDiagram
         varchar Patente
         varchar Legajo
     }
+    FICHA_TECNICA {
+        int id_ficha PK
+        varchar Tipo
+        varchar Descripcion
+        date Fecha
+        varchar Patente
+        varchar DNI
+        varchar Legajo
+    }
+    FACTURACION {
+        int id_factura PK
+        date Fecha
+        int Monto
+        varchar DNI
+        varchar Patente
+    }
     MECANICO_REPARACIONES {
         varchar Legajo
         int id_reparacion
@@ -40,3 +56,8 @@ erDiagram
     VEHICULOS ||--o{ REPARACIONES : "tiene"
     MECANICOS ||--o{ MECANICO_REPARACIONES : "realiza"
     REPARACIONES ||--o{ MECANICO_REPARACIONES : "incluye"
+    VEHICULOS ||--o{ FICHA_TECNICA : "tiene"
+    CLIENTES ||--o{ FICHA_TECNICA : "tiene"
+    MECANICOS ||--o{ FICHA_TECNICA : "tiene"
+    CLIENTES ||--o{ FACTURACION : "recibe"
+    VEHICULOS ||--o{ FACTURACION : "asociado a"

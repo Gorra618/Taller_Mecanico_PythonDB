@@ -27,10 +27,13 @@ class TallerDB:
 
     # -----MENUS-----
     def menu(self):
+        self.clean()
         print("1. Clientes")
         print("2. Vehiculos")
         print("3. Mecanicos")
-        print("4. Salir")
+        print("4. Ficha Tecnica")
+        print("5. Facturacion")
+        print("6. Salir")
 
     # Clientes
     def menu_clientes(self):
@@ -55,6 +58,20 @@ class TallerDB:
         print("3. Ver mecanico especifico")
         print("4. Eliminar mecanico")
         print("5. Volver")
+
+    # Ficha Tecnica
+    def menu_ficha_tecnica(self):
+        print("1. Crear Ficha Tecnica")
+        print("2. Consultar Ficha Tecnica")
+        print("3. Modificar Ficha Tecnica")
+        print("4. Volver")
+
+    # Facturacion
+    def menu_facturacion(self):
+        print("1. Crear Facturacion")
+        print("2. Anular Facturacion")
+        print("3. Consultar Facturacion")
+        print("4. Volver")
 
     # -----Funciones-----
     # Clientes
@@ -271,6 +288,170 @@ class TallerDB:
         self.clean()
         self.connection.commit()
 
+    # Ficha Tecnica
+    def Crear_FichaTecnica(self):
+        self.clean()
+        insert_query = "INSERT INTO Ficha_tecnica (id_ficha, dni_cliente, marca, modelo, patente, motivo_ingreso, fecha_ingreso) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+        id_ficha = input("Ingrese numero de ficha: ")
+        dni = input("Ingrese DNI del cliente: ")
+        marca = input("Ingrese marca del vehiculo: ")
+        modelo = input("Ingrese modelo del vehiculo: ")
+        patente = input("Ingrese patente del vehiculo: ")
+        motivo_ingreso = input("Ingrese motivo de ingreso: ")
+        fecha_ingreso = input("Ingrese fecha de ingreso (YYYY-MM-DD): ")
+
+        data = (id_ficha, dni, marca, modelo, patente, motivo_ingreso, fecha_ingreso)
+        try:
+            self.cursor.execute(insert_query, data)
+            self.connection.commit()
+            print("> Ficha técnica creada exitosamente.")
+        except Exception as e:
+            print("> Error al crear ficha técnica:", e)
+        print("> Volviendo al menu principal...")
+        time.sleep(1)
+        self.clean()
+
+    def Modificar_FichaTecnica(self):
+        self.clean()
+        print("Modificar Ficha Tecnica")
+        id_ficha = input("Ingrese el ID de la ficha tecnica a modificar: ")
+        query = "SELECT * FROM Ficha_tecnica WHERE id_ficha = %s"
+        self.cursor.execute(query, (id_ficha,))
+        ficha = self.cursor.fetchone()
+        if not ficha:
+            print("> No se encontró la ficha tecnica con ese ID.")
+            time.sleep(2)
+            return
+
+        print("¿Qué desea modificar?")
+        opciones = {
+            1: ("Datos del Vehículo", ["marca", "modelo", "patente"]),
+            2: ("Datos del Cliente", ["dni_cliente"]),
+        }
+        for k, v in opciones.items():
+            print(f"{k}. {v[0]}")
+        print("3. Cancelar")
+
+        try:
+            op = int(input("Opción: "))
+            if op == 3:
+                print("> Modificación cancelada.")
+                return
+            if op not in opciones:
+                print("> Opción inválida.")
+                return
+            campos = opciones[op][1]
+            for idx, campo in enumerate(campos, 1):
+                print(f"{idx}. {campo}")
+            campo_idx = int(input("Seleccione el campo a modificar: ")) - 1
+            if campo_idx < 0 or campo_idx >= len(campos):
+                print("> Opción inválida.")
+                return
+            campo_modificar = campos[campo_idx]
+            nuevo_valor = input(f"Ingrese el nuevo valor para {campo_modificar}: ")
+            update_query = (
+                f"UPDATE Ficha_tecnica SET {campo_modificar} = %s WHERE id_ficha = %s"
+            )
+            self.cursor.execute(update_query, (nuevo_valor, id_ficha))
+            self.connection.commit()
+            print("> Ficha tecnica modificada exitosamente.")
+            time.sleep(2)
+        except Exception as e:
+            print("> Error al modificar la ficha tecnica:", e)
+            time.sleep(2)
+
+    def Consultar_FichaTecnica(self):
+        self.clean()
+        print("Consultar Ficha Tecnica")
+        id_ficha = input(
+            "Ingrese el ID de la ficha tecnica a consultar (deje vacío para ver todas): "
+        )
+        try:
+            if id_ficha.strip() == "":
+                query = "SELECT * FROM Ficha_tecnica"
+                self.cursor.execute(query)
+                fichas = self.cursor.fetchall()
+                if not fichas:
+                    print("> No hay fichas técnicas registradas.")
+                else:
+                    for ficha in fichas:
+                        print(ficha)
+            else:
+                query = "SELECT * FROM Ficha_tecnica WHERE id_ficha = %s"
+                self.cursor.execute(query, (id_ficha,))
+                ficha = self.cursor.fetchone()
+                if ficha:
+                    print(ficha)
+                else:
+                    print("> No se encontró la ficha tecnica con ese ID.")
+        except Exception as e:
+            print("> Error al consultar ficha técnica:", e)
+        input("Presione Enter para volver al menú")
+        self.clean()
+
+    # Facturacion
+    def Crear_Facturacion(self):
+        self.clean()
+        print("Crear Facturación")
+        dni = input("Ingrese DNI del cliente: ")
+        fecha = input("Ingrese fecha de la factura (YYYY-MM-DD): ")
+        monto = input("Ingrese monto: ")
+        estado = "Emitida"
+        insert_query = "INSERT INTO Facturacion (DNI_Cliente, Fecha_Factura, Monto, Estado) VALUES (%s, %s, %s, %s)"
+        data = (dni, fecha, monto, estado)
+        try:
+            self.cursor.execute(insert_query, data)
+            self.connection.commit()
+            print("> Factura creada exitosamente.")
+        except Exception as e:
+            print("> Error al crear la factura:", e)
+        input("Presione Enter para volver al menú")
+        self.clean()
+
+    def Anular_Facturacion(self):
+        self.clean()
+        print("Anular Facturación")
+        id_factura = input("Ingrese el ID de la factura a anular: ")
+        update_query = "UPDATE Facturacion SET Estado = 'Anulada' WHERE id_factura = %s"
+        try:
+            self.cursor.execute(update_query, (id_factura,))
+            if self.cursor.rowcount == 0:
+                print("> No se encontró la factura con ese ID.")
+            else:
+                self.connection.commit()
+                print("> Factura anulada exitosamente.")
+        except Exception as e:
+            print("> Error al anular la factura:", e)
+        input("Presione Enter para volver al menú")
+        self.clean()
+
+    def Consultar_Facturacion(self):
+        self.clean()
+        print("Consultar Facturación")
+        id_factura = input("Ingrese el ID de la factura a consultar (deje vacío para ver todas): ")
+        try:
+            if id_factura.strip() == "":
+                query = "SELECT * FROM Facturacion"
+                self.cursor.execute(query)
+                facturas = self.cursor.fetchall()
+                if not facturas:
+                    print("> No hay facturas registradas.")
+                else:
+                    for factura in facturas:
+                        print(factura)
+            else:
+                query = "SELECT * FROM Facturacion WHERE id_factura = %s"
+                self.cursor.execute(query, (id_factura,))
+                factura = self.cursor.fetchone()
+                if factura:
+                    print(factura)
+                else:
+                    print("> No se encontró la factura con ese ID.")
+        except Exception as e:
+            print("> Error al consultar facturación:", e)
+        input("Presione Enter para volver al menú")
+        self.clean()
+
     # Salir
     def salir(self):
         print("> Saliendo del programa...")
@@ -309,6 +490,7 @@ while True:
             conexion.clean()
         else:
             print("> Opcion no valida, intente nuevamente.")
+
     elif option == 2:
         conexion.clean()
         conexion.menu_vehiculos()
@@ -328,6 +510,7 @@ while True:
 
         else:
             print("> pcion no valida, intente nuevamente.")
+
     elif option == 3:
         conexion.clean()
         conexion.menu_mecanicos()
@@ -346,7 +529,42 @@ while True:
             conexion.clean()
         else:
             print("> Opcion no valida, intente nuevamente.")
+
     elif option == 4:
+        conexion.clean()
+        conexion.menu_ficha_tecnica()
+        option2 = int(input("Seleccione una opcion: "))
+        if option2 == 1:
+            conexion.Crear_FichaTecnica()
+        elif option2 == 2:
+            conexion.Consultar_FichaTecnica()
+        elif option2 == 3:
+            conexion.Modificar_FichaTecnica()
+        elif option2 == 4:
+            print("> Volviendo al menu principal...")
+            time.sleep(1)
+            conexion.clean()
+        else:
+            print("> Opcion no valida, intente nuevamente.")
+
+    elif option == 5:
+        conexion.clean()
+        conexion.menu_facturacion()
+        option2 = int(input("Seleccione una opcion: "))
+        if option2 == 1:
+            conexion.Crear_Facturacion()
+        elif option2 == 2:
+            conexion.Anular_Facturacion()
+        elif option2 == 3:
+            conexion.Consultar_Facturacion()
+        elif option2 == 4:
+            print("> Volviendo al menu principal...")
+            time.sleep(1)
+            conexion.clean()
+        else:
+            print("> Opcion no valida, intente nuevamente.")
+
+    elif option == 6:
         conexion.salir()
     else:
         print("> Opcion no valida, intente nuevamente.")

@@ -40,8 +40,10 @@ CREATE TABLE IF NOT EXISTS `Reparaciones` (
     `Hora_entrada` TIME,
     `Patente` VARCHAR(255),
     `Legajo` VARCHAR(255),
+    `DNI` VARCHAR(255), 
     FOREIGN KEY (`Patente`) REFERENCES `Vehiculos`(`Patente`),
-    FOREIGN KEY (`Legajo`) REFERENCES `Mecanicos`(`Legajo`)
+    FOREIGN KEY (`Legajo`) REFERENCES `Mecanicos`(`Legajo`),
+    FOREIGN KEY (`DNI`) REFERENCES `Clientes`(`DNI`)
 );
 
 CREATE TABLE IF NOT EXISTS `Mecanico_Reparaciones` (
@@ -50,4 +52,24 @@ CREATE TABLE IF NOT EXISTS `Mecanico_Reparaciones` (
     PRIMARY KEY (`Legajo`, `id_reparacion`),
     FOREIGN KEY (`Legajo`) REFERENCES `Mecanicos`(`Legajo`),
     FOREIGN KEY (`id_reparacion`) REFERENCES `Reparaciones`(`id_reparacion`)
+);
+
+CREATE TABLE Ficha_tecnica (
+    id_ficha  VARCHAR(255) PRIMARY KEY,
+    dni_cliente VARCHAR(255),
+    marca VARCHAR(255) NOT NULL,
+    modelo VARCHAR(255) NOT NULL,
+    patente VARCHAR(255) NOT NULL,
+    motivo_ingreso VARCHAR(255),
+    fecha_ingreso DATE
+);
+
+
+CREATE TABLE IF NOT EXISTS `Facturacion` (
+    `id_factura` INT PRIMARY KEY AUTO_INCREMENT,
+    `DNI_Cliente` VARCHAR(255),
+    `Fecha_Factura` DATE,
+    `Monto` DECIMAL(10, 2),
+    `Estado` ENUM('Emitida', 'Anulada'),
+    FOREIGN KEY (`DNI_Cliente`) REFERENCES `Clientes`(`DNI`)
 );
